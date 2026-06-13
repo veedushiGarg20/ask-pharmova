@@ -16,7 +16,7 @@ TRUSTED_SOURCES = [
 GEMINI_MODEL = "gemini-2.5-flash"
 
 # Tavily search settings
-TAVILY_MAX_RESULTS = 3
+TAVILY_MAX_RESULTS = 5
 
 # Bot identity
 BOT_NAME = "AskPharmova"

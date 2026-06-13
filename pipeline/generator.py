@@ -29,4 +29,5 @@ def generate(query: str, context_block: str, source_map: dict) -> tuple[str, dic
     messages = [HumanMessage(content=prompt)]
     response = llm.invoke(messages)
 
-    return response.content, source_map
+    content = response.content if isinstance(response.content, str) else str(response.content)
+    return content, source_map
