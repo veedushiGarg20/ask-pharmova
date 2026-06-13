@@ -1,10 +1,10 @@
-from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_community.tools.tavily_search import TavilySearchResults #type:ignore
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY")
+os.environ["TAVILY_API_KEY"] = os.getenv("TAVILY_API_KEY") #type:ignore
 
 tavily = TavilySearchResults(max_results=3)
 results = tavily.invoke("symptoms of diabetes")

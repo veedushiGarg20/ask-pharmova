@@ -10,7 +10,6 @@ TRUSTED_SOURCES = [
     "nhs.uk",
     "nejm.org",
     "bmj.com",
-    "uptodate.com"
 ]
 
 # Gemini model
