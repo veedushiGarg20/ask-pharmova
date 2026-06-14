@@ -1,4 +1,4 @@
-from langchain_community.tools.tavily_search import TavilySearchResults #type: ignore
+from langchain_community.tools.tavily_search import TavilySearchResults 
 from config import TRUSTED_SOURCES, TAVILY_MAX_RESULTS
 from dotenv import load_dotenv
 import os
@@ -14,7 +14,8 @@ def retrieve(query: str) -> list[dict]:
     try:
         tavily = TavilySearchResults(
             max_results=TAVILY_MAX_RESULTS,
-            include_domains=TRUSTED_SOURCES
+            include_domains=TRUSTED_SOURCES,
+            tavily_api_key=api_key
         )
         results = tavily.invoke(query)
         return results if results else []

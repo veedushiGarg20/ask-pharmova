@@ -1,7 +1,7 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
 from prompts.classifier_prompt import CLASSIFIER_PROMPT
-from config import GEMINI_MODEL
+from config import CLASSIFIER_MODEL
 from dotenv import load_dotenv
 import os
 
@@ -9,14 +9,18 @@ load_dotenv()
 
 def classify_query(query: str) -> bool:
     try:
-        llm = ChatGoogleGenerativeAI(
-            model=GEMINI_MODEL,
-            google_api_key=os.getenv("GOOGLE_API_KEY")
+        llm = ChatGroq(
+            model=CLASSIFIER_MODEL,
+            api_key=os.getenv("GROQ_API_KEY")
         )
 
         prompt = CLASSIFIER_PROMPT.format(user_query=query)
         response = llm.invoke([HumanMessage(content=prompt)])
-        result = response.content.strip().upper()
+        
+        content = response.content
+        if isinstance(content, list):
+            content = " ".join(str(item) for item in content)
+        result = content.strip().upper()
 
         return result == "YES"
 
