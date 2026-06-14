@@ -25,3 +25,4 @@ TAVILY_MAX_RESULTS = 5
 BOT_NAME = "AskPharmova"
 BOT_TAGLINE = "Your trusted medical information assistant"
 REDIRECT_MESSAGE = "I'm AskPharmova, a medical information assistant. I can only answer questions related to health, medicine, symptoms, treatments, or drugs. Please ask a medically relevant question."
+TOPIC_CHANGE_MESSAGE = "It looks like you're asking about a different topic. Please click 'Clear Conversation' in the sidebar to start a new conversation."
