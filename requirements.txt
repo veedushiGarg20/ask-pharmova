@@ -4,4 +4,4 @@ langchain-community
 langchain-core
 langchain-groq
 tavily-python
-python-dotenvpip 
+python-dotenv

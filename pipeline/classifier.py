@@ -1,7 +1,6 @@
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage
-from prompts.classifier_prompt import CLASSIFIER_PROMPT
-from prompts.classifier_prompt import TOPIC_RELEVANCE_PROMPT
+from prompts.classifier_prompt import CLASSIFIER_PROMPT, TOPIC_RELEVANCE_PROMPT
 from config import CLASSIFIER_MODEL
 from dotenv import load_dotenv
 import os
