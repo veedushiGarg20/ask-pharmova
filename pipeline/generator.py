@@ -1,9 +1,9 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+import os
+from dotenv import load_dotenv
+from google import genai
+from google.genai import types
 from prompts.generator_prompt import GENERATOR_PROMPT, SYSTEM_PROMPT, FOLLOWUP_PROMPT
 from config import GENERATION_MODEL
-from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
@@ -12,39 +12,61 @@ FALLBACK_MESSAGE = (
     "to answer your question. Please consult a qualified healthcare provider."
 )
 
+# Instantiate the centralized native Gemini client once
+client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+
 def generate(query: str, context_block: str, source_map: dict, conversation_history: list = None) -> tuple[str, dict]:
     if not context_block.strip():
         return FALLBACK_MESSAGE, {}
 
-    llm = ChatGoogleGenerativeAI(
-        model=GENERATION_MODEL,
-        google_api_key=os.getenv("GOOGLE_API_KEY")
-    )
+    try:
+        # Array to assemble native chat message structures
+        messages = []
 
-    messages = [SystemMessage(content=SYSTEM_PROMPT)]
+        # Process conversation history if present
+        if conversation_history is not None:
+            for message in conversation_history:
+                # Map standard role indicators to native Gemini requirements ('user' and 'model')
+                role = "user" if message["role"] == "user" else "model"
+                messages.append(
+                    types.Content(
+                        role=role,
+                        parts=[types.Part.from_text(text=message["content"])]
+                    )
+                )
+            
+            # Format the target message content with follow-up structures
+            query_prompt = FOLLOWUP_PROMPT.format(
+                context_block=context_block,
+                user_query=query
+            )
+        else:
+            # Format the target message content with first-turn structures
+            query_prompt = GENERATOR_PROMPT.format(
+                context_block=context_block,
+                user_query=query
+            )
 
-    if conversation_history is not None:
-        for message in conversation_history:
-            if message["role"] == "user":
-                messages.append(HumanMessage(content=message["content"]))
-            else:
-                messages.append(AIMessage(content=message["content"]))
-        query_prompt = FOLLOWUP_PROMPT.format(
-            context_block=context_block,
-            user_query=query
+        # Append the current active turn message payload
+        messages.append(
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=query_prompt)]
+            )
         )
-    else:
-        query_prompt = GENERATOR_PROMPT.format(
-            context_block=context_block,
-            user_query=query
+
+        
+        response = client.models.generate_content(
+            model=GENERATION_MODEL,
+            contents=messages,
+            config=types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=0.2  # Keep deterministic and strictly grounded to provided context
+            )
         )
 
-    messages.append(HumanMessage(content=query_prompt))
+        return response.text, source_map
 
-    response = llm.invoke(messages)
-
-    content = response.content
-    if isinstance(content, list):
-        content = content[0].get("text", "") if isinstance(content[0], dict) else content[0].text
-
-    return content, source_map
+    except Exception as e:
+        print(f"Native Gemini Generation error: {e}")
+        return "An error occurred while generating the clinical response.", {}

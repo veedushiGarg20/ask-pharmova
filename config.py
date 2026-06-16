@@ -16,10 +16,10 @@ TRUSTED_SOURCES = [
 CLASSIFIER_MODEL = "llama-3.1-8b-instant"
 # REFORMULATOR_MODEL = "qwen/qwen3-32b"
 REFORMULATOR_MODEL = "llama-3.1-8b-instant"
-GENERATION_MODEL = "gemini-3.5-flash"
+GENERATION_MODEL = "gemini-2.5-flash"
 
-# Tavily search settings
-TAVILY_MAX_RESULTS = 5
+# Tavily search settings (per-query)
+TAVILY_MAX_RESULTS = 3
 
 # Bot identity
 BOT_NAME = "AskPharmova"

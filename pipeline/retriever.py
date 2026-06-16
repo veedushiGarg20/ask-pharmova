@@ -1,24 +1,41 @@
-from langchain_community.tools.tavily_search import TavilySearchResults 
-from config import TRUSTED_SOURCES, TAVILY_MAX_RESULTS
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from tavily import TavilyClient #type:ignore
+from config import TRUSTED_SOURCES, TAVILY_MAX_RESULTS
 
 load_dotenv()
 
 api_key = os.getenv("TAVILY_API_KEY")
 if api_key is None:
     raise EnvironmentError("TAVILY_API_KEY is not set")
-os.environ["TAVILY_API_KEY"] = api_key
 
-def retrieve(query: str) -> list[dict]:
+tavily_client = TavilyClient(api_key=api_key)
+
+def retrieve(queries: list[str]) -> list[dict]:
     try:
-        tavily = TavilySearchResults(
-            max_results=TAVILY_MAX_RESULTS,
-            include_domains=TRUSTED_SOURCES,
-            tavily_api_key=api_key
-        )
-        results = tavily.invoke(query)
-        return results if results else []
+        unique_results = {}
+        
+        for query in queries:
+            query = query.strip()
+            if not query:
+                continue
+        
+            response = tavily_client.search(
+                query=query,
+                max_results=TAVILY_MAX_RESULTS,
+                include_domains=TRUSTED_SOURCES,
+                search_depth="basic" # Standard low-latency setup matching Phase 1 spec
+            )
+            
+            results = response.get("results", [])
+            
+            for doc in results:
+                url = doc.get("url")
+                if url and url not in unique_results:
+                    unique_results[url] = doc
+            
+        return list(unique_results.values()) if unique_results else []
+        
     except Exception as e:
-        print(f"Tavily retrieval error: {e}")
+        print(f"Native Tavily retrieval error: {e}")
         return []

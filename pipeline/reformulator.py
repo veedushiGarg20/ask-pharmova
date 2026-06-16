@@ -1,29 +1,34 @@
-from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage
+import os
+import json
+from dotenv import load_dotenv
+from groq import Groq #type:ignore
 from prompts.reformulator_prompt import REFORMULATOR_PROMPT
 from config import REFORMULATOR_MODEL
-from dotenv import load_dotenv
-import os
 
 load_dotenv()
 
-def reformulate_query(query: str) -> str:
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+def reformulate_query(query: str) -> list[str]:
     try:
-        llm = ChatGroq(
-            model=REFORMULATOR_MODEL,
-            api_key=os.getenv("GROQ_API_KEY")
-        )
-
         prompt = REFORMULATOR_PROMPT.format(user_query=query)
-        response = llm.invoke([HumanMessage(content=prompt)])
         
-        content = response.content
-        if isinstance(content, list):
-            content = " ".join(str(item) for item in content)
-        reformulated = content.strip()
-
-        return reformulated if reformulated else query
+        response = client.chat.completions.create(
+            model=REFORMULATOR_MODEL,
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.1,  # Kept low for deterministic and accurate structural returns
+            response_format={"type": "json_object"}
+        )
+        
+        raw_content = response.choices[0].message.content
+        parsed_json = json.loads(raw_content)
+        
+        queries = parsed_json.get("queries", [query])
+        
+        return queries if queries else [query]
 
     except Exception as e:
-        print(f"Reformulator error: {e}")
-        return query
+        print(f"Multi-Context Reformulator error: {e}")
+        return [query]
