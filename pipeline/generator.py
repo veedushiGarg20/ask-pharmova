@@ -12,7 +12,6 @@ FALLBACK_MESSAGE = (
     "to answer your question. Please consult a qualified healthcare provider."
 )
 
-# Instantiate the centralized native Gemini client once
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def generate(query: str, context_block: str, source_map: dict, conversation_history: list = None) -> tuple[str, dict]:
@@ -20,13 +19,10 @@ def generate(query: str, context_block: str, source_map: dict, conversation_hist
         return FALLBACK_MESSAGE, {}
 
     try:
-        # Array to assemble native chat message structures
         messages = []
 
-        # Process conversation history if present
         if conversation_history is not None:
             for message in conversation_history:
-                # Map standard role indicators to native Gemini requirements ('user' and 'model')
                 role = "user" if message["role"] == "user" else "model"
                 messages.append(
                     types.Content(
@@ -35,19 +31,16 @@ def generate(query: str, context_block: str, source_map: dict, conversation_hist
                     )
                 )
             
-            # Format the target message content with follow-up structures
             query_prompt = FOLLOWUP_PROMPT.format(
                 context_block=context_block,
                 user_query=query
             )
         else:
-            # Format the target message content with first-turn structures
             query_prompt = GENERATOR_PROMPT.format(
                 context_block=context_block,
                 user_query=query
             )
 
-        # Append the current active turn message payload
         messages.append(
             types.Content(
                 role="user",

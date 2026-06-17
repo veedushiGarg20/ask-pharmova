@@ -10,20 +10,17 @@ def run_reformulator_test():
     print("-" * 60)
 
     # Test Input
-    sample_query = "what are the symptoms of diabetes?"
+    sample_query = "What are the common side effects of Metformin and can I take it with Jardiance?"
     print(f"[Original Input User Prompt]: '{sample_query}'")
-    
-    
     refined_search_query = reformulate_query(sample_query)
-    
     print("-" * 60)
-    print(f"[Groq Reformulated Query]: '{refined_search_query}'")
+    print(f"Reformulated Queries]: '{refined_search_query}'")
     print("-" * 60)
     
-    if refined_search_query != sample_query and len(refined_search_query) > 0:
-        print("Pass Status: SUCCESS (Query successfully optimized!)")
-    else:
-        print("Pass Status: WARNING (Returned original query or blank string)")
+    mock_critic_gap = "missing information regarding drug-drug interactions between Metformin and Jardiance"
+    corrective_queries = reformulate_query(sample_query, missing_info=mock_critic_gap)
+    print("-" * 60)
+    print(f"Corrective Queries]: '{corrective_queries}'")
 
 if __name__ == "__main__":
     if not os.getenv("GROQ_API_KEY"):

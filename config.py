@@ -14,6 +14,7 @@ TRUSTED_SOURCES = [
 
 # model
 CLASSIFIER_MODEL = "llama-3.1-8b-instant"
+CRITIC_MODEL = "llama-3.1-8b-instant"
 # REFORMULATOR_MODEL = "qwen/qwen3-32b"
 REFORMULATOR_MODEL = "llama-3.1-8b-instant"
 GENERATION_MODEL = "gemini-2.5-flash"

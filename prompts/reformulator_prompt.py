@@ -28,3 +28,20 @@ Output: {{
 
 User Query to process: {user_query}
 Output JSON Object:"""
+
+
+CORRECTIVE_REFORMULATOR_PROMPT = """
+You are an expert medical search query optimizer. 
+An initial search was performed for the user's question, but a factual audit revealed that crucial information is missing from the results.
+
+Your task is to analyze the original query and the specific missing information gap, and generate highly targeted search queries to find the missing data.
+
+Rules:
+1. Focus your search queries strictly on resolving the missing information gap.
+2. Do not re-search topics that were already successfully found.
+3. You must output your response STRICTLY as a JSON object with a single key named "queries" containing an array of strings. Do not include any conversational filler or markdown code blocks (like ```json).
+
+Original User Query: {user_query}
+Identified Missing Information Gap: {missing_info}
+
+Output JSON Object:"""
